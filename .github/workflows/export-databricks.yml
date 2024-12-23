@@ -1,6 +1,9 @@
 name: Export Databricks Objects
 
 on:
+  push:
+    branches:
+      - 'main'
   # schedule:
   #   - cron: '0 2 * * *' # Runs daily at 2:00 AM UTC
   workflow_dispatch: # Allows manual triggering of the workflow
@@ -33,7 +36,7 @@ jobs:
       - name: Run Databricks Terraform Exporter
         run: |
           mkdir -p ./data
-          ./bin/terraform-provider-databricks_v1.62.0 exporter -skip-interactive -services=jobs -workspace-url="${DATABRICKS_HOST}" -token="${DATABRICKS_TOKEN}" -output-dir="./data" -debug
+          ./bin/terraform-provider-databricks_v1.62.0 -skip-interactive -services=jobs -workspace-url="${DATABRICKS_HOST}" -token="${DATABRICKS_TOKEN}" -output-dir="./data" -debug
             # --workspace-url="${DATABRICKS_HOST}" \
             # --token="${DATABRICKS_TOKEN}" \
             # --output-dir="./data"
