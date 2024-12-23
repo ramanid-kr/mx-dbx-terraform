@@ -10,6 +10,9 @@ on:
 
 jobs:
   export-databricks:
+    env:
+         DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+         DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
     runs-on: ubuntu-latest
 
     steps:
@@ -29,17 +32,17 @@ jobs:
           chmod +x ./bin/terraform-provider-databricks_v1.62.0
 
       # Step 3: Export Databricks Environment Variables
-      - name: Set Environment Variables
-        env:
-          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-        run: echo "Environment variables set."
+      # - name: Set Environment Variables
+      #   env:
+      #     DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      #     DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+      #   run: echo "Environment variables set."
 
       # Step 4: Run Databricks Terraform Exporter
       - name: Run Databricks Terraform Exporter
         run: |
           mkdir -p ./data
-          ./bin/terraform-provider-databricks_v1.62.0 exporter -skip-interactive -output-dir="./data"
+          ./bin/terraform-provider-databricks_v1.62.0 exporter -skip-interactive 
           # -workspace-url="${DATABRICKS_HOST}" -token="${DATABRICKS_TOKEN}" -output-dir="./data" -skip-interactive
             # --workspace-url="${DATABRICKS_HOST}" \
             # --token="${DATABRICKS_TOKEN}" \
