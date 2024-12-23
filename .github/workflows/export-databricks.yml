@@ -51,7 +51,7 @@ jobs:
       - name: LS and PWD
         run: |
           pwd
-          ls
+          ls data
           
       # # Step 5: Commit and Push Exported Data
       # - name: Commit and Push Changes
