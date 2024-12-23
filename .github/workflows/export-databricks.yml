@@ -19,6 +19,7 @@ jobs:
         run: |
           wget https://github.com/databricks/terraform-provider-databricks/releases/download/v1.62.0/terraform-provider-databricks_1.62.0_linux_amd64.zip
           unzip terraform-provider-databricks_1.62.0_linux_amd64.zip -d ./bin/
+          ls ./bin/
           sudo chmod +x ./bin/terraform-provider-databricks_1.62.0
 
       # Step 3: Export Databricks Environment Variables
