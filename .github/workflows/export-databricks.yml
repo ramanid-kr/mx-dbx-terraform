@@ -1,0 +1,49 @@
+name: Export Databricks Objects
+
+on:
+  # schedule:
+  #   - cron: '0 2 * * *' # Runs daily at 2:00 AM UTC
+  workflow_dispatch: # Allows manual triggering of the workflow
+
+jobs:
+  export-databricks:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Terraform Provider Binary
+      - name: Download Databricks Terraform Exporter
+        run: |
+          wget https://github.com/databricks/terraform-provider-databricks/releases/download/v1.62.0/terraform-provider-databricks_v1.62.0_linux_amd64.zip
+          unzip terraform-provider-databricks_v1.62.0_linux_amd64.zip -d ./bin/
+          chmod +x ./bin/terraform-provider-databricks_v1.62.0
+
+      # Step 3: Export Databricks Environment Variables
+      - name: Set Environment Variables
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        run: echo "Environment variables set."
+
+      # Step 4: Run Databricks Terraform Exporter
+      - name: Run Databricks Terraform Exporter
+        run: |
+          mkdir -p ./data
+          ./bin/terraform-provider-databricks_v1.62.0 \
+            --workspace-url="${DATABRICKS_HOST}" \
+            --token="${DATABRICKS_TOKEN}" \
+            --output-dir="./data"
+
+      # Step 5: Commit and Push Exported Data
+      - name: Commit and Push Changes
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add ./data
+          git commit -m "Export Databricks objects on $(date)"
+          git push "https://${GH_PAT}@github.com/${{ github.repository }}.git" HEAD:main
