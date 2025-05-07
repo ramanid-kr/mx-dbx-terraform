@@ -1,0 +1,45 @@
+name: Promote Feature to Prod
+
+on:
+  pull_request:
+    types:
+      - labeled
+
+jobs:
+  promote:
+    if: github.event.label.name == 'promote-to-prod'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Stage Branch
+        uses: actions/checkout@v3
+        with:
+          ref: stage
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      - name: Cherry-pick PR commits
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          COMMITS=$(gh pr view $PR_NUMBER --json commits --jq '.commits[].oid')
+
+          git checkout -b promote/pr-$PR_NUMBER prod
+
+          for COMMIT in $COMMITS; do
+            git cherry-pick $COMMIT
+          done
+
+          git push origin promote/pr-$PR_NUMBER
+
+      - name: Create PR to Prod
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr create \
+            --base prod \
+            --head promote/pr-$PR_NUMBER \
+            --title "Promote PR #$PR_NUMBER to Prod" \
+            --body "Automated promotion of feature PR #$PR_NUMBER to prod"
