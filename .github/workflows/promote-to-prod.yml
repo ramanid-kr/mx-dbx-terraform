@@ -3,6 +3,7 @@ name: Promote Feature to Prod
 on:
   pull_request:
     types:
+      - closed
       - labeled
 
 jobs:
