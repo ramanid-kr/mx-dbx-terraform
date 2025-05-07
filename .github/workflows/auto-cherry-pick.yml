@@ -1,0 +1,26 @@
+name: Auto Cherry Pick to Production
+
+on:
+  pull_request:
+    types:
+      - closed
+      - labeled
+
+jobs:
+  auto-cherry-pick:
+    if: |
+      github.event.pull_request.merged == true &&
+      contains(github.event.pull_request.labels.*.name, 'promote-to-prod')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Auto Cherry Pick
+        uses: mintsweet/auto-cherry-pick@v1.0.0
+        with:
+          target-branch: prod
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
